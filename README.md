@@ -101,5 +101,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Made with ❤️ by Project Lumos
 
 Project Lumos is an Intitiative driven by Srinath Warrier to help a few ineterested people learn to build real-world AI Projects.
+Participants:
+- Diya Saraf
+- Alvin Johns
+- Vishnu Sai
+- Siju Samson
+- Ashish singh
+
+
 
 [Srinath Warrier Tech](https://srinathwarrier.com) | [GitHub](https://github.com/srinathwarriertech)
