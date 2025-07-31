@@ -28,6 +28,7 @@ export default function StoryGeneratorForm() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [story, setStory] = useState('');
   const router = useRouter();
 
   const genres = [
@@ -71,8 +72,9 @@ export default function StoryGeneratorForm() {
       });
 
       if (!response.ok) throw new Error('Failed to generate story');
-      const data = await response.json();
-      router.push(`/dashboard/stories/${data.story.id}`);
+      const data = await response.text();
+      setStory(data);
+      // router.push(`/dashboard/stories/${data.story.id}`);
     } catch (err) {
       setError('Failed to generate story. Please try again.');
       console.error('Error:', err);
@@ -225,6 +227,27 @@ export default function StoryGeneratorForm() {
           <Alert severity="error" className="rounded-xl">
             {error}
           </Alert>
+        )}
+
+        
+        {story && (
+        <Box>
+          <Typography variant="h6" className="mb-3 font-semibold">
+            Story
+          </Typography>
+          <TextField
+            fullWidth
+            value={story}
+            multiline
+            rows={10}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              }
+            }}
+          />
+        </Box>
         )}
 
         <Box className="pt-4">

@@ -6,6 +6,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^2.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@langchain/community": "^0.3.49",
@@ -21,6 +22,7 @@
     "@upstash/redis": "^1.35.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/kv": "^3.0.0",
+    "ai": "^3.1.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
