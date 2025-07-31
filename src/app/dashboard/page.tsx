@@ -1,8 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  Paper,
+  Avatar,
+  Chip
+} from '@mui/material';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import GradientButton from '@/components/ui/GradientButton';
+import ModernCard from '@/components/ui/ModernCard';
+import StoryCard from '@/components/story/StoryCard';
+
+const AddIcon = () => <div className="w-5 h-5">+</div>;
+const BookIcon = () => <div className="w-6 h-6">📚</div>;
+const MagicIcon = () => <div className="w-6 h-6">✨</div>;
+const TrendingIcon = () => <div className="w-6 h-6">📈</div>;
 
 type Story = {
   id: string;
@@ -38,122 +55,107 @@ export default function Dashboard() {
   }, [user]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen message="Loading your stories..." />;
   }
 
-  return (
-    <div>
-      <div className="sm:flex sm:items-center mb-8">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">Welcome back!</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            Create a new story or continue working on your existing ones.
-          </p>
-        </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Create New Story
-          </Link>
-        </div>
-      </div>
+  const stats = [
+    { label: 'Total Stories', value: stories.length, icon: <BookIcon />, color: 'from-blue-500 to-cyan-500' },
+    { label: 'This Month', value: stories.filter(s => new Date(s.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length, icon: <TrendingIcon />, color: 'from-green-500 to-emerald-500' },
+    { label: 'Genres Explored', value: new Set(stories.map(s => s.genre)).size, icon: <MagicIcon />, color: 'from-purple-500 to-pink-500' },
+  ];
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Recent Stories</h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Your most recently created stories
-          </p>
-        </div>
-        <div className="border-t border-gray-200">
-          {stories.length === 0 ? (
-            <div className="text-center py-12">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No stories</h3>
-              <p className="mt-1 text-sm text-gray-500">Get started by creating a new story.</p>
-              <div className="mt-6">
-                <Link
-                  href="/"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+  return (
+    <Box className="space-y-8">
+      {/* Welcome Header */}
+      <Box className="text-center py-8">
+        <Typography variant="h2" className="text-gradient mb-4">
+          Welcome back, Creator! 
+        </Typography>
+        <Typography variant="h6" color="text.secondary" className="mb-6 max-w-2xl mx-auto">
+          Ready to craft your next masterpiece? Let your imagination run wild with AI-powered storytelling.
+        </Typography>
+        <Link href="/">
+          <GradientButton className="px-8 py-3">
+            <AddIcon />
+            <span className="ml-2">Create New Story</span>
+          </GradientButton>
+        </Link>
+      </Box>
+
+      {/* Stats Cards */}
+      <Grid container spacing={3} className="mb-8">
+        {stats.map((stat, index) => (
+          <Grid item xs={12} md={4} key={index}>
+            <ModernCard hover={false} className="text-center">
+              <Box className="flex flex-col items-center space-y-3">
+                <Avatar 
+                  className={`w-12 h-12 bg-gradient-to-r ${stat.color} text-white`}
                 >
-                  <svg
-                    className="-ml-1 mr-2 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  New Story
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <ul className="divide-y divide-gray-200">
-              {stories.map((story) => (
-                <li key={story.id}>
-                  <Link
-                    href={`/dashboard/stories/${story.id}`}
-                    className="block hover:bg-gray-50"
-                  >
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-blue-600 truncate">
-                          {story.title || 'Untitled Story'}
-                        </p>
-                        <div className="ml-2 flex-shrink-0 flex">
-                          <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            {story.genre}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-2 sm:flex sm:justify-between">
-                        <div className="sm:flex">
-                          <p className="flex items-center text-sm text-gray-500">
-                            {story.content.substring(0, 200)}...
-                          </p>
-                        </div>
-                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <p>
-                            Created on{' '}
-                            <time dateTime={story.created_at}>
-                              {new Date(story.created_at).toLocaleDateString()}
-                            </time>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </div>
+                  {stat.icon}
+                </Avatar>
+                <Box>
+                  <Typography variant="h4" className="font-bold text-gray-900">
+                    {stat.value}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {stat.label}
+                  </Typography>
+                </Box>
+              </Box>
+            </ModernCard>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Stories Section */}
+      <Box>
+        <Box className="flex items-center justify-between mb-6">
+          <Box>
+            <Typography variant="h4" className="font-bold text-gray-900 mb-2">
+              Your Stories
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Continue your creative journey
+            </Typography>
+          </Box>
+          <Chip 
+            label={`${stories.length} stories`}
+            className="bg-primary-100 text-primary-800 font-semibold"
+          />
+        </Box>
+
+        {stories.length === 0 ? (
+          <ModernCard className="text-center py-12">
+            <Box className="max-w-md mx-auto">
+              <Avatar 
+                className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white"
+              >
+                <BookIcon />
+              </Avatar>
+              <Typography variant="h5" className="font-bold text-gray-900 mb-2">
+                No stories yet
+              </Typography>
+              <Typography variant="body1" color="text.secondary" className="mb-6">
+                Start your creative journey by generating your first AI-powered story.
+              </Typography>
+              <Link href="/">
+                <GradientButton>
+                  <MagicIcon />
+                  <span className="ml-2">Create Your First Story</span>
+                </GradientButton>
+              </Link>
+            </Box>
+          </ModernCard>
+        ) : (
+          <Grid container spacing={4}>
+            {stories.map((story) => (
+              <Grid item xs={12} sm={6} lg={4} key={story.id}>
+                <StoryCard story={story} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Box>
+    </Box>
   );
 }

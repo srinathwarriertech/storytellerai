@@ -1,5 +1,13 @@
 import { createGroqClient } from './config';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { PromptTemplate } from "@langchain/core/prompts";
+import {ChatGroq} from "@langchain/groq";
+import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { HttpResponseOutputParser } from 'node_modules/langchain/dist/output_parsers';
+
+
+import { groq } from '@ai-sdk/groq';
+import { generateText } from 'ai';
 
 type StoryParams = {
   genre: string;
@@ -9,7 +17,7 @@ type StoryParams = {
   additionalContext?: string;
 };
 
-export async function generateStory(params: StoryParams): Promise<string> {
+export async function generateStory(params: StoryParams): Promise<StreamingTextResponse> {
   const { genre, theme, length, style = 'engaging', additionalContext = '' } = params;
   
   const lengthMap = {
@@ -29,15 +37,38 @@ export async function generateStory(params: StoryParams): Promise<string> {
   - Use vivid descriptions
   - Maintain consistent tone and style throughout`;
 
-  const groqClient = createGroqClient();
+  // const groqClient = createGroqClient();
+  const model = new ChatGroq({
+        model: "gemma2-9b-it",
+        temperature: 0,
+        apiKey: process.env.GROQ_API_KEY 
+        // other params...
+      });
   
   try {
-    const response = await groqClient.invoke([
-      new SystemMessage(systemPrompt),
-      new HumanMessage("Please generate the story now.")
-    ]);
+    // const response = await groqClient.invoke([
+    //   new SystemMessage(systemPrompt),
+    //   new HumanMessage("Please generate the story now.")
+    // ]);
+
+    const prompt = PromptTemplate.fromTemplate(systemPrompt);    
+    const outputParser = new HttpResponseOutputParser();
     
-    return response.content.toString();
+    const chain = prompt.pipe(model).pipe(outputParser);
+
+    const stream = await chain.stream({
+      input: '',
+    });
+    
+    return new StreamingTextResponse(stream);
+
+    // const { text } = await generateText({
+    //   model: groq('qwen/qwen3-32b'),
+    //   prompt: systemPrompt
+    // });
+
+    // return text;
+
   } catch (error) {
     console.error('Error generating story:', error);
     throw new Error('Failed to generate story. Please try again.');
