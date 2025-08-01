@@ -114,5 +114,10 @@ export default function StoryDetail() {
             </div>
           </div>
         </div>
-        <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3
-```
+        <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+          {/* Share buttons or other actions can go here */}
+        </div>
+      </div>
+    </div>
+  );
+}

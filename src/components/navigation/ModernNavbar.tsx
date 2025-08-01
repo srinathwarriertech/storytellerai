@@ -92,9 +92,21 @@ export default function ModernNavbar() {
         <Divider className="my-4" />
         
         <ListItem 
-          button
+          component="button"
           onClick={handleSignOut}
-          className="rounded-xl hover:bg-red-50 transition-colors duration-200"
+          sx={{
+            borderRadius: 3,
+            '&:hover': { backgroundColor: 'rgba(254, 226, 226, 0.8)' },
+            transition: 'background-color 0.2s',
+            cursor: 'pointer',
+            width: '100%',
+            textAlign: 'left',
+            padding: '8px 16px',
+            border: 'none',
+            background: 'none',
+            display: 'flex',
+            alignItems: 'center'
+          }}
         >
           <ListItemIcon className="text-red-500 min-w-0 mr-3">
             <LogoutIcon />

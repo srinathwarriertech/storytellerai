@@ -29,7 +29,8 @@ export default function SignUp() {
       if (error) throw error;
       router.push('/dashboard');
     } catch (err) {
-      setError(err.message || 'Failed to create an account');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create an account';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

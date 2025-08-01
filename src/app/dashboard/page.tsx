@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
-  Grid, 
   Paper,
   Avatar,
   Chip
@@ -83,9 +82,9 @@ export default function Dashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} className="mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {stats.map((stat, index) => (
-          <Grid item xs={12} md={4} key={index}>
+          <div key={index}>
             <ModernCard hover={false} className="text-center">
               <Box className="flex flex-col items-center space-y-3">
                 <Avatar 
@@ -103,9 +102,9 @@ export default function Dashboard() {
                 </Box>
               </Box>
             </ModernCard>
-          </Grid>
+          </div>
         ))}
-      </Grid>
+      </div>
 
       {/* Stories Section */}
       <Box>
@@ -147,13 +146,13 @@ export default function Dashboard() {
             </Box>
           </ModernCard>
         ) : (
-          <Grid container spacing={4}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {stories.map((story) => (
-              <Grid item xs={12} sm={6} lg={4} key={story.id}>
+              <div key={story.id}>
                 <StoryCard story={story} />
-              </Grid>
+              </div>
             ))}
-          </Grid>
+          </div>
         )}
       </Box>
     </Box>

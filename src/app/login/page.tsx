@@ -23,7 +23,8 @@ export default function Login() {
       if (error) throw error;
       router.push('/dashboard');
     } catch (err) {
-      setError(err.message || 'Failed to sign in');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

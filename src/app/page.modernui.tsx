@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography, Container, Grid, Avatar, Chip } from '@mui/material';
+import { Box, Typography, Container, Avatar, Chip, Grid } from '@mui/material';
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '@/components/theme/mui-theme';
@@ -108,7 +108,7 @@ export default function ModernUIPreview() {
                     description: 'From fantasy epics to sci-fi adventures, explore unlimited storytelling potential.'
                   }
                 ].map((feature, index) => (
-                  <Grid item xs={12} md={4} key={index}>
+                  <Grid columns={{ xs: 12, md: 4 }} key={index}>
                     <ModernCard className="text-center h-full">
                       <Typography variant="h2" className="mb-4">
                         {feature.icon}
@@ -132,13 +132,13 @@ export default function ModernUIPreview() {
               </Typography>
               
               {/* Stats Cards */}
-              <Grid container spacing={3} className="mb-8">
+              <Grid container spacing={4} className="mt-12">
                 {[
                   { label: 'Total Stories', value: 12, icon: '📚', color: 'from-blue-500 to-cyan-500' },
                   { label: 'This Month', value: 5, icon: '📈', color: 'from-green-500 to-emerald-500' },
                   { label: 'Genres Explored', value: 6, icon: '✨', color: 'from-purple-500 to-pink-500' },
                 ].map((stat, index) => (
-                  <Grid item xs={12} md={4} key={index}>
+                  <Grid columns={{ xs: 12, md: 4 }} key={index} component="div">
                     <ModernCard hover={false} className="text-center">
                       <Box className="flex flex-col items-center space-y-3">
                         <Avatar 
@@ -179,7 +179,7 @@ export default function ModernUIPreview() {
 
                 <Grid container spacing={4}>
                   {mockStories.map((story) => (
-                    <Grid item xs={12} sm={6} lg={4} key={story.id}>
+                    <Grid columns={{ xs: 12, sm: 6, lg: 4 }} key={story.id} component="div">
                       <StoryCard story={story} />
                     </Grid>
                   ))}
