@@ -10,8 +10,13 @@ Reference linkedin post :
 <referencepost>
 
 Brand guidelines: 
-<brandguide>`;
+<brandguide>
 
-export function getLinkedInPost(topic: string, referencePost: string, brandGuide: string): string {
-  return linkedin_prompt.replace('<topic>', topic).replace('<referencepost>', referencePost).replace('<brandguide>', brandGuide);
+Strong additional Guideline:
+<filecontent>
+
+`;
+
+export function getLinkedInPost(topic: string, referencePost: string, brandGuide: string,fileContent:string,fileName:string): string {
+  return linkedin_prompt.replace('<topic>', topic).replace('<referencepost>', referencePost).replace('<brandguide>', brandGuide).replace('<filecontent>', fileContent);
 }   

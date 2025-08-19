@@ -30,13 +30,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const { topic, referencePost } = requestBody;
+    const { topic, referencePost ,fileContent,fileName} = requestBody;
 
     
     let linkedinPostParams = {
       topic,
       referencePost,
-      brandGuide: acmeBrandGuidelinesLinkedin
+      brandGuide: acmeBrandGuidelinesLinkedin,
+      fileContent,
+      fileName
     };
 
     let linkedinPost = await generateLinkedInPost(linkedinPostParams);
