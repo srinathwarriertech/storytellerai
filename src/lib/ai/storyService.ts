@@ -8,6 +8,8 @@ import { HttpResponseOutputParser } from 'node_modules/langchain/dist/output_par
 
 import { groq } from '@ai-sdk/groq';
 import { generateText } from 'ai';
+import { getLinkedInPost } from '@/prompts/linkedin_prompt';
+import {acmeBrandGuidelinesLinkedin} from '@/testdata/acme/acme-brand-guidelines-linkedin';
 
 type StoryParams = {
   genre: string;
@@ -15,6 +17,12 @@ type StoryParams = {
   length: 'short' | 'medium' | 'long';
   style?: string;
   additionalContext?: string;
+};
+
+type LinkedInParams = {
+  topic: string;
+  referencePost: string;
+  brandGuide: string;
 };
 
 export async function generateStory(params: StoryParams): Promise<StreamingTextResponse> {
@@ -74,6 +82,40 @@ export async function generateStory(params: StoryParams): Promise<StreamingTextR
     throw new Error('Failed to generate story. Please try again.');
   }
 }
+
+export async function generateLinkedInPost(params:LinkedInParams):Promise<StreamingTextResponse> {
+    const { topic, referencePost, brandGuide } = params;
+    
+    const systemPrompt = getLinkedInPost(topic, referencePost, brandGuide);
+    console.log(systemPrompt);
+  
+    const model = new ChatGroq({
+          model: "llama-3.1-8b-instant",
+          temperature: 0,
+          apiKey: process.env.GROQ_API_KEY 
+          // other params...
+        });
+    
+    try {
+  
+      const prompt = PromptTemplate.fromTemplate(systemPrompt);    
+      const outputParser = new HttpResponseOutputParser();
+      
+      const chain = prompt.pipe(model).pipe(outputParser);
+  
+      const stream = await chain.stream({
+        input: '',
+      });
+      
+      return new StreamingTextResponse(stream);
+  
+    } catch (error) {
+      console.error('Error generating story:', error);
+      throw new Error('Failed to generate story. Please try again.');
+    }
+  }
+  
+
 
 export async function generateSocialPosts(story: string, platform: 'twitter' | 'linkedin' | 'instagram'): Promise<string[]> {
   const systemPrompt = `You are a social media expert. Create 3 engaging posts for ${platform} based on the following story. 

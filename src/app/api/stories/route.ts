@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { generateStory, generateSocialPosts } from '@/lib/ai/storyService';
+import { generateStory } from '@/lib/ai/storyService';
 import { PromptTemplate } from "@langchain/core/prompts";
 
 // // Rate limiting configuration
