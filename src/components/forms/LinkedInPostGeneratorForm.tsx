@@ -29,6 +29,7 @@ export default function StoryGeneratorForm() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [story, setStory] = useState('');
+  const [reasoning, setReasoning] = useState('');
   const router = useRouter();
 
 
@@ -72,7 +73,14 @@ export default function StoryGeneratorForm() {
       });
 
       if (!response.ok) throw new Error('Failed to generate story');
-      const data = await response.text();
+      let data = await response.text();
+      let reasoning ='';
+
+      if(data.split("</think>")[1]) {
+        reasoning = data.split("</think>")[0].split("<think>")[1].trim();
+        data = data.split("</think>")[1].trim();
+      }
+      setReasoning(reasoning);
       setStory(data);
       // router.push(`/dashboard/stories/${data.story.id}`);
     } catch (err) {
@@ -187,6 +195,27 @@ export default function StoryGeneratorForm() {
             {error}
           </Alert>
         )}
+
+        {story && reasoning &&(
+        <Box>
+          <Typography variant="h6" className="mb-3 font-semibold">
+            Reasoning
+          </Typography>
+          <TextField
+            fullWidth
+            value={reasoning}
+            multiline
+            rows={10}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              }
+            }}
+          />
+        </Box>
+        )}
+        
 
         
         {story && (

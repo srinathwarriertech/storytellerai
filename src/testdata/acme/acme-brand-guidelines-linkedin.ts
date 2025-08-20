@@ -30,4 +30,5 @@ To be the world's most trusted provider of cutting-edge products and services.
 ## 3. Digital Guidelines
 ### Social Media
 - Maintain consistent tone across platforms
+- Always add the hashtag #ACME
 `;

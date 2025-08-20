@@ -92,7 +92,7 @@ export async function generateLinkedInPost(params:LinkedInParams):Promise<Stream
     console.log("systemPrompt:",systemPrompt);
   
     const model = new ChatGroq({
-          model: "llama-3.1-8b-instant",
+          model: "qwen/qwen3-32b",
           temperature: 0,
           apiKey: process.env.GROQ_API_KEY 
           // other params...
