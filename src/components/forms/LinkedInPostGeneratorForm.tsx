@@ -10,7 +10,9 @@ import {
   FormControl, 
   InputLabel,
   Chip,
-  Alert
+  Alert,
+  Button,
+  CircularProgress
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import GradientButton from '@/components/ui/GradientButton';
@@ -23,11 +25,19 @@ export default function StoryGeneratorForm() {
     topic: '',
     referencePost: '',
     brandGuide: '',
+    youtubeChannelId: '',
     file: null as File | null,
     fileContent: ''
   });
+  const [isFetchingTranscripts, setIsFetchingTranscripts] = useState(false);
+  const [transcripts, setTranscripts] = useState<Array<{
+    id: string;
+    title: string;
+    content: string;
+  }>>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [story, setStory] = useState('');
   const [reasoning, setReasoning] = useState('');
   const router = useRouter();
@@ -35,6 +45,47 @@ export default function StoryGeneratorForm() {
 
   const handleChange = (field: string, value: string | File) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFetchTranscripts = async () => {
+    if (!formData.youtubeChannelId) {
+      setError('Please enter a YouTube channel ID');
+      return;
+    }
+    
+    setIsFetchingTranscripts(true);
+    setError('');
+    setSuccess('');
+    setTranscripts([]);
+    
+    try {
+      const response = await fetch('/api/fetch-youtube-transcripts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelId: formData.youtubeChannelId }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch transcripts');
+      }
+      console.log("inside fetch transcripts",data);
+      setTranscripts(data.transcripts);
+      
+      // Auto-fill the topic field with the channel name if it's empty
+      if (!formData.topic && data.channelName) {
+        setFormData(prev => ({ ...prev, topic: data.channelName }));
+      }
+      
+      setSuccess(`Successfully fetched ${data.transcripts.length} video transcripts`);
+      
+    } catch (err) {
+      console.error('Error fetching transcripts:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch transcripts. Please check the channel ID and try again.');
+    } finally {
+      setIsFetchingTranscripts(false);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +114,8 @@ export default function StoryGeneratorForm() {
       const payload = {
         ...formData,
         file: undefined, // Don't send the File object directly
-        fileName: formData.file?.name || ''
+        fileName: formData.file?.name || '',
+        transcripts: transcripts,
       };
 
       const response = await fetch('/api/linkedinpost', {
@@ -95,9 +147,15 @@ export default function StoryGeneratorForm() {
     <ModernCard className="max-w-4xl mx-auto">
       <Box className="text-center mb-8">
         <Box className="flex items-center justify-center mb-4">
-          <div className="p-3 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
+          {/*<div className="p-3 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
             <MagicIcon />
           </div>
+           <Typography variant="h5" className="font-bold text-xl mt-4">
+            Generate LinkedIn Post from YouTube Channel
+          </Typography>
+          <Typography variant="body1" className="text-gray-600 mt-2">
+            Enter a YouTube channel ID to fetch transcripts from the latest videos
+          </Typography> */}
         </Box>
         <Typography variant="h3" className="text-gradient mb-2">
           Create Your Story
@@ -107,10 +165,86 @@ export default function StoryGeneratorForm() {
         </Typography>
       </Box>
 
-      
-
       <form onSubmit={handleSubmit} className="space-y-6">
-        
+        <div className="flex flex-col md:flex-row gap-4">
+          <TextField
+            fullWidth
+            label="YouTube Channel ID"
+            value={formData.youtubeChannelId}
+            onChange={(e) => handleChange('youtubeChannelId', e.target.value)}
+            placeholder="e.g., UC1234567890abcdefghijklmnopqrstuvw"
+            variant="outlined"
+            className="flex-1"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleFetchTranscripts}
+            disabled={isFetchingTranscripts || !formData.youtubeChannelId}
+            className="h-14 w-full md:w-48"
+          >
+            {isFetchingTranscripts ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              'Fetch Transcripts'
+            )}
+          </Button>
+        </div>
+
+        {error && (
+          <Alert severity="error" className="mb-4">
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" className="mb-4">
+            {success}
+          </Alert>
+        )}
+
+        {transcripts.length > 0 && (
+          <div className="mb-6">
+            <Typography variant="h6" className="font-semibold mb-3">
+              Fetched Transcripts ({transcripts.length})
+            </Typography>
+            <div className="space-y-4 max-h-96 overflow-y-auto p-2 border rounded">
+              {transcripts.map((transcript, index) => (
+                <div key={transcript.id} className="p-3 border-b last:border-b-0">
+                  <Typography variant="subtitle2" className="font-medium">
+                    {index + 1}. {transcript.title}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-600 mt-1 line-clamp-3">
+                    {transcript.content.substring(0, 200)}
+                    {transcript.content.length > 200 ? '...' : ''}
+                  </Typography>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Topic Input */}
+        <Box>
+          <Typography variant="h6" className="mb-3 font-semibold">
+            What do you want to post about?
+          </Typography>
+          <TextField
+            fullWidth
+            value={formData.topic}
+            onChange={(e) => handleChange('topic', e.target.value)}
+            placeholder="Enter your topic or prompt..."
+            multiline
+            rows={2}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              }
+            }}
+          />
+        </Box>
+
 
         {/* File Upload */}
         <Box>
@@ -147,28 +281,6 @@ export default function StoryGeneratorForm() {
           </Box>
         </Box>
 
-        {/* Topic Input */}
-        <Box>
-          <Typography variant="h6" className="mb-3 font-semibold">
-            Topic
-          </Typography>
-          <TextField
-            fullWidth
-            value={formData.topic}
-            onChange={(e) => handleChange('topic', e.target.value)}
-            placeholder="Enter your topic or prompt..."
-            multiline
-            rows={2}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              }
-            }}
-          />
-        </Box>
-
-
         {/* Reference Post */}
         <Box>
           <Typography variant="h6" className="mb-3 font-semibold">
@@ -188,6 +300,18 @@ export default function StoryGeneratorForm() {
               }
             }}
           />
+        </Box>
+        
+
+        <Box className="pt-4">
+          <GradientButton
+            type="submit"
+            loading={isGenerating}
+            disabled={isGenerating}
+            className="w-full py-4 text-lg"
+          >
+            {isGenerating ? 'Crafting Your Story...' : 'Generate My Story'}
+          </GradientButton>
         </Box>
 
         {error && (
@@ -238,16 +362,7 @@ export default function StoryGeneratorForm() {
         </Box>
         )}
 
-        <Box className="pt-4">
-          <GradientButton
-            type="submit"
-            loading={isGenerating}
-            disabled={isGenerating}
-            className="w-full py-4 text-lg"
-          >
-            {isGenerating ? 'Crafting Your Story...' : 'Generate My Story'}
-          </GradientButton>
-        </Box>
+        
       </form>
     </ModernCard>
   );

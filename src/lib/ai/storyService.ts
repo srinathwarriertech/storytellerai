@@ -25,6 +25,7 @@ type LinkedInParams = {
   brandGuide: string;
   fileContent: string;
   fileName: string;
+  transcripts: Array<{ id: string; title: string; content: string }>;
 };
 
 export async function generateStory(params: StoryParams): Promise<StreamingTextResponse> {
@@ -86,9 +87,9 @@ export async function generateStory(params: StoryParams): Promise<StreamingTextR
 }
 
 export async function generateLinkedInPost(params:LinkedInParams):Promise<StreamingTextResponse> {
-    const { topic, referencePost, brandGuide,fileContent,fileName } = params;
+    const { topic, referencePost, brandGuide,fileContent,fileName,transcripts } = params;
     
-    const systemPrompt = getLinkedInPost(topic, referencePost, brandGuide,fileContent,fileName);
+    const systemPrompt = getLinkedInPost(topic, referencePost, brandGuide,fileContent,fileName,transcripts);
     console.log("systemPrompt:",systemPrompt);
   
     const model = new ChatGroq({
